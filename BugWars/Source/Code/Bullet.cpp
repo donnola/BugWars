@@ -12,18 +12,25 @@ void Bullet::OnStart(Point)
 
 void Bullet::OnUpdate(float dt)
 {
-	for (auto object : g_Game->objects)
-		if (!object->disabled)
-			if (auto bug = dynamic_cast<Bug*>(object))
-				if (bug->position.Distance(position) < bug->GetRadius())
+	for (int i = g_Game->objects.size() - 1; i >= 0; --i)
+	{
+		if (!g_Game->objects[i]->disabled)
+		{
+			if (g_Game->objects[i]->GetRTTI() == Bug::s_RTTI)
+			{
+				float bag_rad = g_Game->objects[i]->GetRadius();
+				if ((g_Game->objects[i]->position - position).Length2() < bag_rad * bag_rad)
 				{
 					g_Game->tank->score++;
-					bug->disabled = true;
-					bug->visible = false;
+					g_Game->objects[i]->disabled = true;
+					g_Game->objects[i]->visible = false;
 					disabled = true;
 					visible = false;
 					return;
 				}
+			}
+		}
+	}
 }
 
 void Bullet::OnLifeEnd()
