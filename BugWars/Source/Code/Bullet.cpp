@@ -12,7 +12,7 @@ void Bullet::OnStart(Point)
 
 void Bullet::OnUpdate(float dt)
 {
-	for (int i = g_Game->objects.size() - 1; i >= 0; --i)
+	for (int i = 0; i < g_Game->objects.size(); ++i)
 	{
 		if (!g_Game->objects[i]->disabled)
 		{

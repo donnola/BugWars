@@ -7,10 +7,11 @@
 
 Game* g_Game;
 
-Game::Game()
-	: GameBase({ [] {return new Tank; },
+Game::Game(): 
+	GameBase({ [] {return new Tank; },
 				 [] {return new Bug; },
-				 [] {return new Bullet; } })
+				 [] {return new Bullet; } }), 
+	obj_grid(cells_dim, std::vector<std::vector<GameObject*>>(cells_dim))
 {
 	g_Game = this;
 }

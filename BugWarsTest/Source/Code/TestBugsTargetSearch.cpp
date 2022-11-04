@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "Bug.h"
+#include "GameBase/Log.h"
 
 static const float min_corner = 100.0f; // Should be 0.0f but don't want to put things on the potential cell borders
 static const float max_corner = 6300.0f; // Should be 6400.0f but don't want to put things on the potential cell borders
@@ -46,7 +47,10 @@ TEST(ChunkBordersCrossedOnUpdate)
 	game.onBugUpdate_Begin = [&target, bug_hunter](auto bug)
 	{
 		if (bug == bug_hunter)
+		{
 			target = bug->FindBugToEat();
+			Log("I am hungry!");
+		}
 	};
 
 	int frame_counter = 0;
@@ -58,10 +62,17 @@ TEST(ChunkBordersCrossedOnUpdate)
 			return;
 
 		if (bug == bug_1st_target)
+		{
 			bug_1st_target->position = bug_1st_target->position + Point(0.0f, 4000.0f);
+			Log("bug_1st_target moved");
+		}
+			
 
 		if (bug == bug_2nd_target)
+		{
 			bug_2nd_target->position = bug_2nd_target->position - Point(0.0f, 4000.0f);
+			Log("bug_2nd_target moved");
+		}
 	};
 
 	game.Update(1.0f); // 1st frame
