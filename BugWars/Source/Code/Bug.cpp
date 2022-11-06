@@ -1,32 +1,93 @@
 #include "pch.h"
 #include "Bug.h"
 #include "Game.h"
+#include <algorithm>
 
 IMPLEMENT_RTTI(Bug);
 
 void Bug::OnUpdate(float dt)
 {
-
+	auto pos = position;
+	int x = std::min(std::max(int(floor(pos.x / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+	int y = std::min(std::max(int(floor(pos.y / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+	if (cell.first != x || cell.second != y)
+	{
+		g_Game->obj_grid[cell.second][cell.first].erase(this);
+		g_Game->obj_grid[y][x].insert(this);
+		cell = std::pair(x, y);
+	}
 }
 
 BugBase* Bug::FindBugToEat() const
 {
 	Bug* target = nullptr;
+	Bug* candidate = nullptr;
+	bool bug_found = false;
+	int shift = 0;
 	float min_dist = std::numeric_limits<float>::max();
-	for (int i = 0; i < g_Game->objects.size(); ++i)
-	{
-		if (g_Game->objects[i]->GetRTTI() == Bug::s_RTTI)
-		{
-			if (g_Game->objects[i]->id >= id || g_Game->objects[i]->disabled)
-				continue;
+	std::vector<std::vector<bool>> grid_bool = std::vector(g_Game->cells_dim, std::vector<bool>(g_Game->cells_dim, false));
+	int x = cell.first;
+	int y = cell.second;
 
-			float dist = (position - g_Game->objects[i]->position).Length2();
-			if (dist < min_dist)
+	while (!bug_found && (y - shift >= 0 || x - shift >= 0 || y + shift < g_Game->cells_dim || x + shift < g_Game->cells_dim))
+	{
+		for (int i = std::max(y - shift, 0); i <= std::min(y + shift, g_Game->cells_dim - 1); ++i)
+		{
+			for (int j = std::max(x - shift, 0); j <= std::min(x + shift, g_Game->cells_dim - 1); ++j)
 			{
-				min_dist = dist;
-				target = dynamic_cast<Bug*>(g_Game->objects[i]);
+				if (grid_bool[i][j])
+				{
+					continue;
+				}
+				for (Bug* b : g_Game->obj_grid[i][j])
+				{
+					if (b->id >= id || b->disabled)
+					{
+						continue;
+					}
+					float dist = (position - b->position).Length2();
+					if (dist < min_dist)
+					{
+						min_dist = dist;
+						candidate = b;
+						bug_found = true;
+					}
+				}
+				grid_bool[i][j] = true;
 			}
 		}
+		++shift;
+	}
+
+	if (bug_found)
+	{
+		if (y - shift >= 0 || x - shift >= 0 || y + shift < g_Game->cells_dim || x + shift < g_Game->cells_dim)
+		{
+			for (int i = std::max(y - shift, 0); i <= std::min(y + shift, g_Game->cells_dim - 1); ++i)
+			{
+				for (int j = std::max(x - shift, 0); j <= std::min(x + shift, g_Game->cells_dim - 1); ++j)
+				{
+					if (grid_bool[i][j])
+					{
+						continue;
+					}
+					for (Bug* b : g_Game->obj_grid[i][j])
+					{
+						if (b->id >= id || b->disabled)
+						{
+							continue;
+						}
+						float dist = (position - b->position).Length2();
+						if (dist < min_dist)
+						{
+							min_dist = dist;
+							candidate = b;
+						}
+					}
+				}
+			}
+		}
+		target = candidate;
 	}
 
 	return target;
@@ -45,46 +106,3 @@ void Bug::OnEat(BugBase& first, BugBase& second)
 		first.visible = false;
 	}
 }
-
-//BugBase* Bug::FindBugToEat() const
-//{
-//	Bug* target = nullptr;
-//	float min_dist = std::numeric_limits<float>::max();
-//	for (auto object : g_Game->objects)
-//	{
-//		if (auto bug = dynamic_cast<Bug*>(object))
-//		{
-//			if (bug == this)
-//				continue;
-//
-//			if (bug->disabled)
-//				continue;
-//
-//			if (bug->id > id)
-//				continue; // Can't eat that
-//
-//			float dist = position.Distance(bug->position);
-//			if (dist < min_dist)
-//			{
-//				min_dist = dist;
-//				target = bug;
-//			}
-//		}
-//	}
-//
-//	return target;
-//}
-//
-//void Bug::OnEat(BugBase& first, BugBase& second)
-//{
-//	if (first.id > second.id)
-//	{
-//		second.disabled = true;
-//		second.visible = false;
-//	}
-//	else
-//	{
-//		first.disabled = true;
-//		first.visible = false;
-//	}
-//}
