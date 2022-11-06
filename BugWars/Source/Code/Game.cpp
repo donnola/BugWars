@@ -25,6 +25,19 @@ void Game::OnUpdate(float dt)
 		if (!objects[i]->disabled)
 		{
 			objects[i]->Update(dt);
+			if (objects[i]->GetRTTI() == Bug::s_RTTI)
+			{
+				Bug* bug = dynamic_cast<Bug*>(objects[i]);
+				auto pos = bug->position;
+				int x = std::min(std::max(int(floor(pos.x / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+				int y = std::min(std::max(int(floor(pos.y / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+				if (bug->cell.first != x || bug->cell.second != y)
+				{
+					g_Game->obj_grid[bug->cell.second][bug->cell.first].erase(bug);
+					g_Game->obj_grid[y][x].insert(bug);
+					bug->cell = std::pair(x, y);
+				}
+			}
 		}
 		else
 		{

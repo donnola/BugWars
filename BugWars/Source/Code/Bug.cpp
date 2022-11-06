@@ -7,15 +7,15 @@ IMPLEMENT_RTTI(Bug);
 
 void Bug::OnUpdate(float dt)
 {
-	auto pos = position;
-	int x = std::min(std::max(int(floor(pos.x / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
-	int y = std::min(std::max(int(floor(pos.y / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
-	if (cell.first != x || cell.second != y)
-	{
-		g_Game->obj_grid[cell.second][cell.first].erase(this);
-		g_Game->obj_grid[y][x].insert(this);
-		cell = std::pair(x, y);
-	}
+	//auto pos = position;
+	//int x = std::min(std::max(int(floor(pos.x / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+	//int y = std::min(std::max(int(floor(pos.y / g_Game->cell_size)), 0), g_Game->cells_dim - 1);
+	//if (cell.first != x || cell.second != y)
+	//{
+	//	g_Game->obj_grid[cell.second][cell.first].erase(this);
+	//	g_Game->obj_grid[y][x].insert(this);
+	//	cell = std::pair(x, y);
+	//}
 }
 
 BugBase* Bug::FindBugToEat() const
