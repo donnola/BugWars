@@ -22,15 +22,18 @@ BugBase* Bug::FindBugToEat() const
 {
 	Bug* target = nullptr;
 	Bug* candidate = nullptr;
-	bool bug_found = false;
 	int shift = 0;
 	float min_dist = std::numeric_limits<float>::max();
 	std::vector<std::vector<bool>> grid_bool = std::vector(g_Game->cells_dim, std::vector<bool>(g_Game->cells_dim, false));
 	int x = cell.first;
 	int y = cell.second;
 
-	while (!bug_found && (y - shift >= 0 || x - shift >= 0 || y + shift < g_Game->cells_dim || x + shift < g_Game->cells_dim))
+	while ((!candidate || !target) && (y - shift >= 0 || x - shift >= 0 || y + shift < g_Game->cells_dim || x + shift < g_Game->cells_dim))
 	{
+		if (candidate)
+		{
+			target = candidate;
+		}
 		for (int i = std::max(y - shift, 0); i <= std::min(y + shift, g_Game->cells_dim - 1); ++i)
 		{
 			for (int j = std::max(x - shift, 0); j <= std::min(x + shift, g_Game->cells_dim - 1); ++j)
@@ -50,7 +53,6 @@ BugBase* Bug::FindBugToEat() const
 					{
 						min_dist = dist;
 						candidate = b;
-						bug_found = true;
 					}
 				}
 				grid_bool[i][j] = true;
@@ -59,34 +61,8 @@ BugBase* Bug::FindBugToEat() const
 		++shift;
 	}
 
-	if (bug_found)
+	if (candidate)
 	{
-		if (y - shift >= 0 || x - shift >= 0 || y + shift < g_Game->cells_dim || x + shift < g_Game->cells_dim)
-		{
-			for (int i = std::max(y - shift, 0); i <= std::min(y + shift, g_Game->cells_dim - 1); ++i)
-			{
-				for (int j = std::max(x - shift, 0); j <= std::min(x + shift, g_Game->cells_dim - 1); ++j)
-				{
-					if (grid_bool[i][j])
-					{
-						continue;
-					}
-					for (Bug* b : g_Game->obj_grid[i][j])
-					{
-						if (b->id >= id || b->disabled)
-						{
-							continue;
-						}
-						float dist = (position - b->position).Length2();
-						if (dist < min_dist)
-						{
-							min_dist = dist;
-							candidate = b;
-						}
-					}
-				}
-			}
-		}
 		target = candidate;
 	}
 
