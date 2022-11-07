@@ -43,7 +43,6 @@ void Game::OnRender() const
 {
 	for (auto obj : objects)
 		if (obj->visible)
-			if ((tank_obj->position - obj->position).Length2() < render_rad_2)
 				DoRender(obj);
 }
 
