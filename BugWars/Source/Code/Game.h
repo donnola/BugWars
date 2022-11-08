@@ -26,8 +26,8 @@ struct Game : public GameBase
 	GameObject* tank_obj;
 	float render_rad_2 = 1000 * 1000;
 	std::vector<GameObject*> objects;
-	const float cell_size = 600;
+	const float cell_size = 800;
 	const float field_size = 9600;
-	const int cells_dim = 16;
+	const int cells_dim = 12;
 	std::vector<std::vector<std::set<Bug*>>> obj_grid;
 };
